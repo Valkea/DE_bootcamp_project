@@ -1,0 +1,3 @@
+daily_temperatures.csv https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/temperature-quotidienne-regionale/exports/csv?lang=en&timezone=Europe%2FBerlin&use_labels=true&delimiter=%3B
+daily_gaz_supply.csv https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/stock-quotidien-stockages-gaz/exports/csv?lang=en&timezone=Europe%2FBerlin&use_labels=true&delimiter=%3B
+daily_ecomix.csv https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/eco2mix-national-tr/exports/csv?lang=en&timezone=Europe%2FBerlin&use_labels=true&delimiter=%3B
