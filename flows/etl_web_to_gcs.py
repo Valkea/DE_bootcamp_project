@@ -1,5 +1,7 @@
 #! /usr/bin/env python3
 
+import re
+import unidecode
 import os
 import pathlib
 import pandas as pd
@@ -21,13 +23,21 @@ def fetch(dataset_url: str) -> pd.DataFrame:
     """Read data from web into pandas DataFrame"""
 
     print("FETCH", dataset_url)
-    return pd.read_csv(dataset_url)
+    return pd.read_csv(dataset_url, delimiter=";")
 
 
 @task(name="Transform Data", log_prints=True)
 def transform_data(df: pd.DataFrame) -> pd.DataFrame:
 
     print(df.head(2))
+
+    new_cols = {}
+    for col in df.columns:
+        new_col = unidecode.unidecode(col)
+        new_col = re.sub(r'[^a-zA-Z0-9;]', '', new_col)
+        new_cols[col] = new_col
+
+    df.rename(columns=new_cols, inplace=True)
 
     # print(f"pre: columns types: \n{df.dtypes}")
     # if "lpep_pickup_datetime" in df.columns:
@@ -53,8 +63,11 @@ def write_local(df: pd.DataFrame, dataset_file: str) -> pathlib.Path:
     if not path.exists():
         os.makedirs(path)
 
+    path1 = pathlib.Path(path, dataset_file)
+    df.to_csv(path1, index=False)
+
     path = pathlib.Path(path, f"{dataset_file.replace('.csv','.parquet')}")
-    df.to_parquet(path, compression="gzip")
+    df.to_parquet(path, compression="gzip", index=False)
 
     return path
 
