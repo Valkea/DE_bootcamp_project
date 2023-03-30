@@ -1,0 +1,84 @@
+version: 2
+
+sources:
+  - name: staging
+    database: lexical-passkey-375922
+    schema: deproject_dataset
+
+    tables:
+      - name: daily_temperatures
+      - name: daily_gaz_supply
+      - name: daily_ecomix
+
+models:
+    - name: daily_temperatures
+      description: >
+        https://odre.opendatasoft.com/explore/dataset/stock-quotidien-stockages-gaz/information/
+      columns:
+          - name: ID
+            tests:
+              - unique:
+                  severity: warn
+              - not_null:
+                  severity: warn
+          - name: Date
+          - name: CodeINSEEregion
+          - name: Region
+          - name: TMindegC
+          - name: TMaxdegC
+          - name: TMoydegC
+  
+    - name: daily_gaz_supply
+      description: >
+        https://odre.opendatasoft.com/explore/dataset/stock-quotidien-stockages-gaz/information/
+      columns:
+          - name: Date
+          - name: StockfindejourneeGWhPCS0degC
+          - name: Source
+          - name: PITS
+
+    - name: daily_ecomix
+      description: >
+        https://odre.opendatasoft.com/explore/dataset/eco2mix-national-tr/information
+      columns:
+          - name: Perimetre
+          - name: Nature
+          - name: Date
+          - name: Heure
+          - name: DateHeure
+          - name: ConsommationMW
+          - name: PrevisionJ1MW
+          - name: PrevisionJMW
+          - name: FioulMW
+          - name: CharbonMW
+          - name: GazMW
+          - name: NucleaireMW
+          - name: EolienMW
+          - name: SolaireMW
+          - name: HydrauliqueMW
+          - name: PompageMW
+          - name: BioenergiesMW
+          - name: EchphysiquesMW
+          - name: TauxdeCO2gkWh
+          - name: EchcommAngleterreMW
+          - name: EchcommEspagneMW
+          - name: EchcommItalieMW
+          - name: EchcommSuisseMW
+          - name: EchcommAllemagneBelgiqueMW
+          - name: FioulTACMW
+          - name: FioulCogenerationMW
+          - name: FioulAutresMW
+          - name: GazTACMW
+          - name: GazCogenerationMW
+          - name: GazCCGMW
+          - name: GazAutresMW
+          - name: HydrauliqueFildeleauecluseeMW
+          - name: HydrauliqueLacsMW
+          - name: HydrauliqueSTEPturbinageMW
+          - name: BioenergiesDechetsMW
+          - name: BioenergiesBiomasseMW
+          - name: BioenergiesBiogazMW
+          - name: StockagebatterieMW
+          - name: DestockagebatterieMW
+          - name: EolienterrestreMW
+          - name: EolienoffshoreMW
