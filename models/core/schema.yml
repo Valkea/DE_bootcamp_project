@@ -1,0 +1,6 @@
+version: 2
+
+models:
+  - name: daily_merged
+    description: >
+      Merged data from the 3 sources

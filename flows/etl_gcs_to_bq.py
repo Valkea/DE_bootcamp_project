@@ -54,11 +54,10 @@ def transform_data(path: pathlib.Path) -> pd.DataFrame:
 
     return df
 
-
 @task(retries=3)
 def write_bq(df: pd.DataFrame, tablename: str) -> None:
     """ Write the DataFrame to Big Query Data Warehouse """
-
+  
     gcp_credentials_block = GcpCredentials.load("de-project-gcs-creds")
 
     dataset_id = "de_project_staging"
@@ -72,7 +71,6 @@ def write_bq(df: pd.DataFrame, tablename: str) -> None:
         # chunksize=500000,
         if_exists="append",
     )
-
 
 @flow(name="", log_prints=True)
 def etl_gcs_to_bq():
