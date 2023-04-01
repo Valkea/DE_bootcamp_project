@@ -54,22 +54,23 @@ def transform_data(path: pathlib.Path) -> pd.DataFrame:
 
     return df
 
-
 @task(retries=3)
 def write_bq(df: pd.DataFrame, tablename: str) -> None:
     """ Write the DataFrame to Big Query Data Warehouse """
-
+  
     gcp_credentials_block = GcpCredentials.load("de-project-gcs-creds")
-    tablename = tablename.replace('.parquet', '')
-
+  
+    dataset_id = "de_project_staging"
+    project_id = "compelling-moon-382321"
+    tablename = tablename.replace('.parquet', '') 
+  
     df.to_gbq(
-        destination_table=f"deproject_dataset.{tablename}",
-        project_id="lexical-passkey-375922",
+        destination_table=f"{dataset_id}.{tablename}",
+        project_id=project_id,
         credentials=gcp_credentials_block.get_credentials_from_service_account(),
         # chunksize=500000,
         if_exists="append",
     )
-
 
 @flow(name="", log_prints=True)
 def etl_gcs_to_bq():

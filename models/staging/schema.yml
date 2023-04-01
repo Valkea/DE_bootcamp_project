@@ -2,8 +2,8 @@ version: 2
 
 sources:
   - name: staging
-    database: lexical-passkey-375922
-    schema: deproject_dataset
+    database: compelling-moon-382321
+    schema: de_project_staging
 
     tables:
       - name: daily_temperatures
@@ -13,7 +13,7 @@ sources:
 models:
     - name: daily_temperatures
       description: >
-        https://odre.opendatasoft.com/explore/dataset/stock-quotidien-stockages-gaz/information/
+        https://odre.opendatasoft.com/explore/dataset/temperature-quotidienne-regionale/information/
       columns:
           - name: ID
             tests:
