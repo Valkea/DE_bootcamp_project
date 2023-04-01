@@ -59,11 +59,11 @@ def write_bq(df: pd.DataFrame, tablename: str) -> None:
     """ Write the DataFrame to Big Query Data Warehouse """
   
     gcp_credentials_block = GcpCredentials.load("de-project-gcs-creds")
-  
+
     dataset_id = "de_project_staging"
     project_id = "compelling-moon-382321"
-    tablename = tablename.replace('.parquet', '') 
-  
+    tablename = tablename.replace('.parquet', '')
+
     df.to_gbq(
         destination_table=f"{dataset_id}.{tablename}",
         project_id=project_id,
