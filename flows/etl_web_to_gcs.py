@@ -39,19 +39,6 @@ def transform_data(df: pd.DataFrame) -> pd.DataFrame:
 
     df.rename(columns=new_cols, inplace=True)
 
-    # print(f"pre: columns types: \n{df.dtypes}")
-    # if "lpep_pickup_datetime" in df.columns:
-    #     df.lpep_pickup_datetime = pd.to_datetime(df.lpep_pickup_datetime)
-    #     df.lpep_dropoff_datetime = pd.to_datetime(df.lpep_dropoff_datetime)
-    # elif "tpep_pickup_datetime" in df.columns:
-    #     df.tpep_pickup_datetime = pd.to_datetime(df.tpep_pickup_datetime)
-    #     df.tpep_dropoff_datetime = pd.to_datetime(df.tpep_dropoff_datetime)
-    # print(f"post: columns types: \n{df.dtypes}")
-
-    # print(f"pre: missing passenger count: {df[df.passenger_count == 0].shape[0]} / {df.shape[0]}")
-    # df = df[df.passenger_count != 0]
-    # print(f"post: missing passenger count: {df[df.passenger_count == 0].shape[0]} / {df.shape[0]}")
-
     return df
 
 
@@ -82,10 +69,7 @@ def write_GCS(path: pathlib.Path) -> None:
 
 @flow(log_prints=True, retries=3)
 def etl_web_to_gcs(dataset_url, dataset_file) -> None:
-    """The main ETL function"""
-
-    # dataset_file = f"{color}_tripdata_{year}-{month:02}.csv.gz"
-    # dataset_url = f"https://github.com/DataTalksClub/nyc-tlc-data/releases/download/{color}/{dataset_file}"
+    """The main ETL flow that copy the sources from WEB to the Data Lake (CGS)"""
 
     df = fetch(dataset_url)
     df_clean = transform_data(df)
@@ -94,9 +78,9 @@ def etl_web_to_gcs(dataset_url, dataset_file) -> None:
 
 
 @flow(log_prints=True)
-def etl_parent_flow() -> None:
+def etl_web_to_gcs_loop() -> None:
+    """The base flow to loop over the ressources"""
 
-    """The main function"""
     with open(pathlib.Path("data-sources.txt"), "r") as f:
         for data_src in f.readlines():
             dataset_file, dataset_url = data_src.split(' ')
@@ -105,4 +89,4 @@ def etl_parent_flow() -> None:
 
 
 if __name__ == "__main__":
-    etl_parent_flow()
+    etl_web_to_gcs_loop()

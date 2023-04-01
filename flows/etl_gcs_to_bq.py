@@ -73,21 +73,25 @@ def write_bq(df: pd.DataFrame, tablename: str) -> None:
     )
 
 @flow(name="", log_prints=True)
-def etl_gcs_to_bq():
-    """ Main ETL flow to load data into Big Query Data Warehouse """
+def etl_gcs_to_bq(dataset_file: str, tablename: str) -> None:
+    """ Main ETL flow that pushes Data Lake data (GCS) Data Warhouse (Big Query) """
 
+    path = extract_from_gcs(dataset_file)
+    df = transform_data(path)
+    write_bq(df, tablename)
+
+
+@flow(log_prints=True)
+def etl_gcs_to_bq_loop() -> None:
+    """The base flow to loop over the ressources"""
     print("ETL_GCS_TO_BQ")
     with open(pathlib.Path("data-sources.txt"), "r") as f:
         for data_src in f.readlines():
             dataset_file, dataset_url = data_src.split(' ')
             dataset_file = dataset_file.replace('.csv', '.parquet')
-            tablename = dataset_file.replace('.csv', '')
-
-            path = extract_from_gcs(dataset_file)
-            df = transform_data(path)
-            write_bq(df, tablename)
+            tablename, ext = dataset_file.split('.')
+            etl_gcs_to_bq(dataset_file, tablename)
 
 
 if __name__ == "__main__":
-    print("INIT")
-    etl_gcs_to_bq()
+    etl_gcs_to_bq_loop()
