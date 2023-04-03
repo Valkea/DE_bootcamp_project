@@ -26,13 +26,12 @@ def extract_from_gcs(dataset_file: str) -> pathlib.Path:
     return localpath
 
 
-@task(name="Transform Data", log_prints=True)
+@task(name="Transform Data for BQ", log_prints=True)
 def transform_data(path: pathlib.Path) -> pd.DataFrame:
     """ Data cleaning example """
 
     df = pd.read_parquet(path)
 
-    print("BEFORE:", df.columns)
     new_cols = {}
     for col in df.columns:
         new_col = unidecode.unidecode(col)
@@ -40,19 +39,9 @@ def transform_data(path: pathlib.Path) -> pd.DataFrame:
         new_cols[col] = new_col
 
     df.rename(columns=new_cols, inplace=True)
-    print("dict:", new_cols)
-    print("AFTER:", df.columns)
-    print(df.head())
-
-    # print(
-    #     f"pre: missing passenger count: {df.passenger_count.isna().sum()} / {df.shape[0]}"
-    # )
-    # df.passenger_count.fillna(0, inplace=True)
-    # print(
-    #     f"post: missing passenger count: {df.passenger_count.isna().sum()} / {df.shape[0]}"
-    # )
 
     return df
+
 
 @task(retries=3)
 def write_bq(df: pd.DataFrame, tablename: str) -> None:
@@ -82,9 +71,10 @@ def etl_gcs_to_bq(dataset_file: str, tablename: str) -> None:
 
 
 @flow(log_prints=True)
-def etl_gcs_to_bq_loop() -> None:
+def etl_gcs_to_bq_parent() -> None:
     """The base flow to loop over the ressources"""
-    print("ETL_GCS_TO_BQ")
+
+    print("ETL - Gcs2Bq")
     with open(pathlib.Path("data-sources.txt"), "r") as f:
         for data_src in f.readlines():
             dataset_file, dataset_url = data_src.split(' ')
@@ -94,4 +84,4 @@ def etl_gcs_to_bq_loop() -> None:
 
 
 if __name__ == "__main__":
-    etl_gcs_to_bq_loop()
+    etl_gcs_to_bq_parent()

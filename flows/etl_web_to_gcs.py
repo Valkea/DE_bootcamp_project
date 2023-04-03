@@ -26,7 +26,7 @@ def fetch(dataset_url: str) -> pd.DataFrame:
     return pd.read_csv(dataset_url, delimiter=";")
 
 
-@task(name="Transform Data", log_prints=True)
+@task(name="Transform Data for GCS", log_prints=True)
 def transform_data(df: pd.DataFrame) -> pd.DataFrame:
 
     print(df.head(2))
@@ -78,9 +78,10 @@ def etl_web_to_gcs(dataset_url, dataset_file) -> None:
 
 
 @flow(log_prints=True)
-def etl_web_to_gcs_loop() -> None:
+def etl_web_to_gcs_parent() -> None:
     """The base flow to loop over the ressources"""
 
+    print("ETL - Web2Gcs")
     with open(pathlib.Path("data-sources.txt"), "r") as f:
         for data_src in f.readlines():
             dataset_file, dataset_url = data_src.split(' ')
@@ -89,4 +90,4 @@ def etl_web_to_gcs_loop() -> None:
 
 
 if __name__ == "__main__":
-    etl_web_to_gcs_loop()
+    etl_web_to_gcs_parent()
