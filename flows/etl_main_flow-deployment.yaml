@@ -1,0 +1,45 @@
+###
+### A complete description of a Prefect Deployment for flow 'etl-main-flow'
+###
+name: etl_ecomix
+description: |-
+  The base flow that sequentially calls the other scripts / flows.
+
+  (I could merge both script into one single script, but I prefer
+  to keep them separated as an example of the possibilites for
+  incoming projects...)
+version: a2de9a6f74f528007a598c8274490f56
+# The work queue that will handle this deployment's runs
+work_queue_name: default
+tags: []
+parameters: {}
+schedule:
+  cron: 0 * * * *
+  timezone: null
+  day_or: true
+infra_overrides: {}
+infrastructure:
+  type: process
+  env: {}
+  labels: {}
+  name: null
+  command: null
+  stream_output: true
+  working_dir: null
+  block_type_slug: process
+  _block_type_slug: process
+
+###
+### DO NOT EDIT BELOW THIS LINE
+###
+flow_name: etl-main-flow
+manifest_path: null
+storage: null
+path: /home/valkea/Dev/Cours_DE_bootcamp/project/flows
+entrypoint: etl_main.py:etl_main_flow
+parameter_openapi_schema:
+  title: Parameters
+  type: object
+  properties: {}
+  required: null
+  definitions: null
