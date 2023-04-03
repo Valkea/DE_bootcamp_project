@@ -4,3 +4,7 @@ flows/data
 flows/data2
 *.ipynb_checkpoints
 *__pycache__
+terraform/.terraform*
+*.swp
+*.swo
+*.backup
