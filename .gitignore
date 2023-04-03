@@ -1,3 +1,6 @@
-target/
-dbt_packages/
-logs/
+venvProject
+creds/*.json
+flows/data
+flows/data2
+*.ipynb_checkpoints
+*__pycache__
