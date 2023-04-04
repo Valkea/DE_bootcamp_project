@@ -1,4 +1,10 @@
-{{ config(materialized='table') }}
+{{  config(materialized='table',
+    partition_by={
+      "field": "date_mix",
+      "data_type": "date",
+      "granularity": "day"
+    }
+)}}
 
 with daily_temperatures as (
     select *, 'Temp' as source_type
@@ -16,8 +22,8 @@ daily_ecomix as (
 )
 
 select
-    daily_temperatures.date as date_temp,
-    daily_gaz_supply.date as date_gaz,
+    -- daily_temperatures.date as date_temp,
+    -- daily_gaz_supply.date as date_gaz,
     daily_ecomix.date as date_mix,
     -- daily_temperatures.TMindegC,
     daily_temperatures.TMoydegC,
