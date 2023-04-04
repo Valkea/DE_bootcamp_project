@@ -33,10 +33,15 @@ select
     daily_ecomix.EolienMW,
     daily_ecomix.SolaireMW,
     CASE greatest(daily_ecomix.NucleaireMW, daily_ecomix.EolienMW, daily_ecomix.SolaireMW)
-            WHEN daily_ecomix.NucleaireMW THEN 'nucleaire'
-            WHEN daily_ecomix.EolienMW    THEN 'eolien'
-            WHEN daily_ecomix.SolaireMW   THEN 'solaire'
-        END AS top_source
+        WHEN daily_ecomix.NucleaireMW THEN 'nucleaire'
+        WHEN daily_ecomix.EolienMW    THEN 'eolien'
+        WHEN daily_ecomix.SolaireMW   THEN 'solaire'
+        END AS top_source,
+    CASE
+        WHEN daily_temperatures.TMoydegC <= 10.0 THEN 'cold'
+        WHEN daily_temperatures.TMoydegC > 25.0 THEN 'hot'
+        ELSE 'average'
+        END AS temperature_category
 from daily_ecomix
 -- from daily_temperatures
 -- from daily_gaz_supply
