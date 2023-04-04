@@ -29,8 +29,6 @@ def fetch(dataset_url: str) -> pd.DataFrame:
 @task(name="Transform Data for GCS", log_prints=True)
 def transform_data(df: pd.DataFrame) -> pd.DataFrame:
 
-    print(df.head(2))
-
     new_cols = {}
     for col in df.columns:
         new_col = unidecode.unidecode(col)
@@ -38,6 +36,10 @@ def transform_data(df: pd.DataFrame) -> pd.DataFrame:
         new_cols[col] = new_col
 
     df.rename(columns=new_cols, inplace=True)
+
+    df = df.replace({'ND': None})
+
+    print(df.head(2))
 
     return df
 
