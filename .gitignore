@@ -8,3 +8,6 @@ terraform/.terraform*
 *.swp
 *.swo
 *.backup
+target/
+dbt_packages/
+logs/
