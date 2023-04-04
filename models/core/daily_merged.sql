@@ -31,7 +31,12 @@ select
     daily_gaz_supply.stock_gaz,
     daily_ecomix.NucleaireMW,
     daily_ecomix.EolienMW,
-    daily_ecomix.SolaireMW
+    daily_ecomix.SolaireMW,
+    CASE greatest(daily_ecomix.NucleaireMW, daily_ecomix.EolienMW, daily_ecomix.SolaireMW)
+            WHEN daily_ecomix.NucleaireMW THEN 'nucleaire'
+            WHEN daily_ecomix.EolienMW    THEN 'eolien'
+            WHEN daily_ecomix.SolaireMW   THEN 'solaire'
+        END AS top_source
 from daily_ecomix
 -- from daily_temperatures
 -- from daily_gaz_supply
