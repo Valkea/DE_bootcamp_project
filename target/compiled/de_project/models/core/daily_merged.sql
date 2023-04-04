@@ -1,24 +1,18 @@
-{{  config(materialized='table',
-    partition_by={
-      "field": "date_mix",
-      "data_type": "date",
-      "granularity": "day"
-    }
-)}}
+
 
 with daily_temperatures as (
     select *, 'Temp' as source_type
-    from {{ ref('stg_daily_temperatures') }}
+    from `compelling-moon-382321`.`de_project_development`.`stg_daily_temperatures`
 ),
 
 daily_gaz_supply as (
     select *, 'Gaz' as source_type
-    from {{ ref('stg_daily_gaz_supply') }}
+    from `compelling-moon-382321`.`de_project_development`.`stg_daily_gaz_supply`
 ),
 
 daily_ecomix as (
     select *, 'Ecomix' as source_type
-    from {{ ref('stg_daily_ecomix') }}
+    from `compelling-moon-382321`.`de_project_development`.`stg_daily_ecomix`
 )
 
 select
