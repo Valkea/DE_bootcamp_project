@@ -79,23 +79,35 @@ This dataset presents the daily minimum, maximum and average temperatures (in de
 - **Google Looker Studio**: for the Data-visualization.
 
 - **Python**: to write the various *Prefect* scripts.
-- **SQL**: to write the various *dbt* models
+- **SQL**: to write the various *dbt* models.
+- **Makefile**: to simpify the deployment processus.
 
 ---
 ## Reproducing this project
 
-### 1. Setup 
+### 1. Setup GCP
 
-Install PREFECT and other libs (starting at the root folder of the project)
+TODO
+
+### 2. Setup local environment
+
+Let's duplicate the project github repository
+
+```bash
+>>> git clone https://github.com/Valkea/DE_bootcamp_project.git
+>>> cd DE_bootcamp_project
+```
+
+Then, let's install PREFECT and other libs (starting at the root folder of the project)
 
 ```bash
 >>> python -m venv venv
 >>> source venv/bin/activate
 >>> pip install -r requirements.txt
->>> prefect version
+>>> prefect version # (just to check that prefect is installed)
 ```
 
-### 2. Initialize infrastuctures with Terraform
+### 3. Initialize infrastuctures with Terraform
 
 ```bash
 (venv) >>> terraform -chdir=terraform plan # (optional) 
@@ -108,25 +120,47 @@ Install PREFECT and other libs (starting at the root folder of the project)
 >     - **de_project_staging** (the source tables for DBT)
 >     - **de_project_development** (the DBT tests exports)
 >     - **de_project_production** (the DBT final exports)
+>
+> ![ecomix](medias/result_terraform_apply.png)
 
-### 3. Initialize Prefect Orion
+### 4. Initialize Prefect Orion in Cloud or Locally
 
-if you want to run Prefect from Cloud
-```bash
->>> TODO
-```
 
-And if you prefer to run it locally
-```bash
-(venv) >>> prefect orion start
-```
-open http://127.0.0.1:4200/
+<details>
+  <summary>(option 1): to use Prefect Orion in the Cloud (recommended), click here</summary>
+  
+  > 1. Create a [PREFECT cloud account](http://prefect.io/)
+  > 2. Login from local terminal 
+  > ```bash
+  > (venv) >>> prefect cloud login
+  > ```
+  >
+  > ![ecomix](medias/cmd_prefect_cloud.png)
+  >
+  > 3. (optional) Changing the workspace
+  > ```bash
+  > (venv) >>> prefect cloud workspace set --workspace "my_workspace_sname"
+  > ```
 
-![ecomix](medias/cmd_prefect_orion.png)
+</details>
 
-### 3. Initialize Prefect Workflow
+<details>
+  <summary>(option 2): to use Prefect Orion locally, click here</summary>
+  
+  > The make file basically execute the following lines
+  > ```bash
+  > (venv) >>> prefect orion start
+  > ```
+  >
+  > ![ecomix](medias/cmd_prefect_orion.png)
+  >
+  > open http://127.0.0.1:4200/
+</details>
 
-Edit the MakeFile with your *project_id* and the *path to your GCP credential json file*.
+
+### 5. Initialize Prefect Workflow
+
+**Edit the MakeFile** with your *project_id* and the *path to your GCP credential json file*, and initialize using the folloing command
 
 ```bash
 (venv) >>> make setup
@@ -137,13 +171,13 @@ Edit the MakeFile with your *project_id* and the *path to your GCP credential js
   
   > The make file basically execute the following lines
   > ```bash
-  > (venv) >>> python ../setup_prefect.py {CREDS_PATH} {PROJECT_ID}
+  > (venv) >>> python setup_prefect.py {CREDS_PATH} {PROJECT_ID}
   > (venv) >>> prefect deployment build flows/etl_main.py:etl_main_flow --name etl_eco2mix --cron "0 * * * *" -a
   > ```
 </details>
 
 
-> At this point the Prefect UI should deplay:
+> At this point the Prefect Orion UI *(either in the Cloud or Locally)* should deplay:
 > - one deployement **etl-main-flow/etl_eco2mix**
 >
 > ![ecomix](medias/result_prefect_deployment.png)
@@ -154,20 +188,19 @@ Edit the MakeFile with your *project_id* and the *path to your GCP credential js
 >
 > ![ecomix](medias/result_prefect_blocks.png)
 
-### 5. Start Prefect Agent
+### 6. Start Prefect Agent
+
+Whether we use Prefect Orion in the Cloud or Locally, we need to initialize a *Prefect agent* in order to execute the selected queue
 
 ```bash
+(venv) >>> prefect deployment run etl-main-flow/etl_eco2mix # (to avoid waiting for the cronjob time)
 (venv) >>> prefect agent start --work-queue "default"
 ```
 
-![ecomix](medias/cmd_prefect_agent.png)
+> ![ecomix](medias/cmd_prefect_agent.png)
 
-and if you don't want to wait for the cronjob time, run the following in a new terminal:
-```bash
-(venv) >>> prefect deployment run etl-main-flow/etl_eco2mix
-```
 
-### 6. Setup DBT
+### 7. Setup DBT
 
 TODO
 
@@ -175,15 +208,17 @@ TODO
 >
 > ![ecomix](medias/result_dbt.jpg)
 
-### 7. Setup Looker
+### 8. Setup Looker
 
 Using the *BigQuery / daily_merged / Export / Explore with Looker studio*, one can finally build a new dashboard.
 
 > Here is the dashbord I created for this project
+>
 > ![ecomix](medias/looker.jpg)
-> It can be tested here: https://lookerstudio.google.com/s/iaO82EDWadE
+>
+> It can be tested here: https://lookerstudio.google.com/reporting/a0869f4e-7f24-4b50-8dd0-750aac025e3b
 
-### 8. Clean up
+### 9. Clean up
 
 Once done, don't forget to remove the allocated infrastructures, clean the ressources etc...
 
@@ -196,7 +231,12 @@ This will remove the GCP Bucket and the three tables from the BigQuery database.
 
 #### Clean Prefect
 
-If you don't intend to reuse the Prefect blocks and deployment, remove them from your Prefect Orion (either local or in cloud). Then stop the prefect orion and prefect agent with CTRL+C.
+If you don't intend to reuse the Prefect blocks and deployment, remove them from your Prefect Orion (either local or in cloud). 
+Then logout from the cloud is using the Cloud:
+```bash
+(venv) >>> prefect cloud logout
+```
+And finally stop the *Prefect agent* with CTRL+C
 
 #### Remove the virtual environment
 
