@@ -1,9 +1,10 @@
 locals {
-  data_lake_bucket = "de_project_terraform_bucket"
+  data_lake_bucket = "eco2mix-de-project-bucket"
 }
 
 variable "project" {
   description = "Your GCP Project ID"
+  default = "compelling-moon-382321"
 }
 
 variable "region" {

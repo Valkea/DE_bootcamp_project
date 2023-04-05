@@ -4,12 +4,11 @@ import re
 import unidecode
 import pathlib
 import pandas as pd
-from datetime import timedelta
 
 from prefect import flow, task
 from prefect_gcp.cloud_storage import GcsBucket
 from prefect_gcp import GcpCredentials
-from prefect.tasks import task_input_hash
+from prefect.blocks.system import JSON
 
 
 @task(retries=3)
@@ -20,7 +19,7 @@ def extract_from_gcs(dataset_file: str) -> pathlib.Path:
     localbase = "data2"
     localpath = pathlib.Path(localbase, gcs_path)
 
-    gcs_block = GcsBucket.load("de-project-user-bucket")
+    gcs_block = GcsBucket.load("eco2mix-de-project-bucket")
     gcs_block.get_directory(from_path=gcs_path, local_path=localbase)
 
     return localpath
@@ -46,11 +45,12 @@ def transform_data(path: pathlib.Path) -> pd.DataFrame:
 @task(retries=3)
 def write_bq(df: pd.DataFrame, tablename: str) -> None:
     """ Write the DataFrame to Big Query Data Warehouse """
-  
-    gcp_credentials_block = GcpCredentials.load("de-project-gcs-creds")
+
+    gcp_credentials_block = GcpCredentials.load("eco2mix-de-project-creds")
+    json_block = JSON.load("eco2mix-de-project-variables")
 
     dataset_id = "de_project_staging"
-    project_id = "compelling-moon-382321"
+    project_id = json_block.value['project_id']
     tablename = tablename.replace('.parquet', '')
 
     df.to_gbq(
@@ -60,6 +60,7 @@ def write_bq(df: pd.DataFrame, tablename: str) -> None:
         # chunksize=500000,
         if_exists="append",
     )
+
 
 @flow(name="", log_prints=True)
 def etl_gcs_to_bq(dataset_file: str, tablename: str) -> None:

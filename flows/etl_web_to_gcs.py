@@ -65,7 +65,7 @@ def write_local(df: pd.DataFrame, dataset_file: str) -> pathlib.Path:
 def write_GCS(path: pathlib.Path) -> None:
     """Copy the Parquet file to GCS"""
 
-    gcs_block = GcsBucket.load("de-project-user-bucket")
+    gcs_block = GcsBucket.load("eco2mix-de-project-bucket")
     gcs_block.upload_from_path(from_path=path, to_path=path)
 
 
