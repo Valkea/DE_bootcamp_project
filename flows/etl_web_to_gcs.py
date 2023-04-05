@@ -29,8 +29,6 @@ def fetch(dataset_url: str) -> pd.DataFrame:
 @task(name="Transform Data for GCS", log_prints=True)
 def transform_data(df: pd.DataFrame) -> pd.DataFrame:
 
-    print(df.head(2))
-
     new_cols = {}
     for col in df.columns:
         new_col = unidecode.unidecode(col)
@@ -38,6 +36,10 @@ def transform_data(df: pd.DataFrame) -> pd.DataFrame:
         new_cols[col] = new_col
 
     df.rename(columns=new_cols, inplace=True)
+
+    df = df.replace({'ND': None})
+
+    print(df.head(2))
 
     return df
 
@@ -63,7 +65,7 @@ def write_local(df: pd.DataFrame, dataset_file: str) -> pathlib.Path:
 def write_GCS(path: pathlib.Path) -> None:
     """Copy the Parquet file to GCS"""
 
-    gcs_block = GcsBucket.load("de-project-user-bucket")
+    gcs_block = GcsBucket.load("eco2mix-de-project-bucket")
     gcs_block.upload_from_path(from_path=path, to_path=path)
 
 

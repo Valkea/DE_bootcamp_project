@@ -86,132 +86,121 @@ This dataset presents the daily minimum, maximum and average temperatures (in de
 
 ### 1. Setup 
 
-Install PREFECT and other libs
+Install PREFECT and other libs (starting at the root folder of the project)
 
 ```bash
->>> python -m venv venvProject
->>> source venvProject/bin/activate
+>>> python -m venv venv
+>>> source venv/bin/activate
 >>> pip install -r requirements.txt
 >>> prefect version
 ```
 
-
----
----
----
-
-TODO
-
-
-Run local PREFECT Orion
+### 2. Initialize infrastuctures with Terraform
 
 ```bash
->>> prefect orion start
+(venv) >>> terraform -chdir=terraform plan # (optional) 
+(venv) >>> terraform -chdir=terraform apply # (answer 'yes')
+```
+
+> At this point you should see:
+> - a new empty **eco2mix-de-project-bucket** in your GCP bucket list.
+> - three new empty tables in your BigQuery database:
+>     - **de_project_staging** (the source tables for DBT)
+>     - **de_project_development** (the DBT tests exports)
+>     - **de_project_production** (the DBT final exports)
+
+### 3. Initialize Prefect Orion
+
+if you want to run Prefect from Cloud
+```bash
+>>> TODO
+```
+
+And if you prefer to run it locally
+```bash
+(venv) >>> prefect orion start
 ```
 open http://127.0.0.1:4200/
 
-Run local PREFECT Agent
+![ecomix](medias/cmd_prefect_orion.png)
+
+### 3. Initialize Prefect Workflow
+
+Edit the MakeFile with your *project_id* and the *path to your GCP credential json file*.
+
 ```bash
->>> prefect orion start
+(venv) >>> make setup
 ```
 
+<details>
+  <summary>If you can't use *make* for any reason click here</summary>
+  
+  > The make file basically execute the following lines
+  > ```bash
+  > (venv) >>> python ../setup_prefect.py {CREDS_PATH} {PROJECT_ID}
+  > (venv) >>> prefect deployment build flows/etl_main.py:etl_main_flow --name etl_eco2mix --cron "0 * * * *" -a
+  > ```
+</details>
 
 
+> At this point the Prefect UI should deplay:
+> - one deployement **etl-main-flow/etl_eco2mix**
+>
+> ![ecomix](medias/result_prefect_deployment.png)
+> - three blocks
+>     - GCP Credentials / **eco2mix-de-project-creds**
+>     - GCS Bucket / **eco2mix-de-project-bucket**
+>     - JSON / **eco2mix-de-project-variables**
+>
+> ![ecomix](medias/result_prefect_blocks.png)
 
-## --------------------------------------------------------------
-## Setup Prefect to do ETL and then send the resulting file to Google Cloud Storage (gcs)
+### 5. Start Prefect Agent
 
-see scripts:
-- flows/etl_web_to_gcs.py
+```bash
+(venv) >>> prefect agent start --work-queue "default"
+```
 
-### Let's create a bucket to store the project files
+![ecomix](medias/cmd_prefect_agent.png)
 
-- Go to GCP-UI // "Cloud Storage" / "Buckets" / "Create"
+and if you don't want to wait for the cronjob time, run the following in a new terminal:
+```bash
+(venv) >>> prefect deployment run etl-main-flow/etl_eco2mix
+```
 
-name --> de_project_gcp_bucket
-data location type --> europe-west1(Belgium)
-data storage class --> standard (Best for short-term storage and frequently accessed data)
+### 6. Setup DBT
 
-- Click on "CREATE"
+TODO
 
-### We can see the bucket content
+> At this point, the BigQuery **de_project_production** table should be filled with a *partitioned* **daily_merged** table.
+>
+> ![ecomix](medias/result_dbt.jpg)
 
-- Go to GCP-UI // "Cloud Storage" / "Buckets" / "de_project_gcp_bucket"
+### 7. Setup Looker
 
-### Let's create an account with the appropriate rights 
+Using the *BigQuery / daily_merged / Export / Explore with Looker studio*, one can finally build a new dashboard.
 
-- Go to GCD-UI // "IAM & Admin" / "Service Account" / "Create service account"
+> Here is the dashbord I created for this project
+> ![ecomix](medias/looker.jpg)
+> It can be tested here: https://lookerstudio.google.com/s/iaO82EDWadE
 
--->1/ service account-name: PROJECT-NAME-user-bucket (de_project_user_bucket)
--->2/ role: "BigQuery Admin" & "Cloud Storage / Storage Admin"
---> Save
--->3/ .
---> Done
+### 8. Clean up
 
-### Let's create a remote key for the account
+Once done, don't forget to remove the allocated infrastructures, clean the ressources etc...
 
-- Go to GCD-UI // "IAM & Admin" / "Service Account"
-- Click '...' and "Manage keys" on the appropriate service account (de_project_user_bucket)
-- Go to "Add Key" / "Create new key" / "JSON" --> A json file is saved to the computer
+#### Destroy infrastuctures with Terraform
 
-### Let's add the PREFECT GCP Block
+```bash
+(venv) >>> terraform -chdir=terraform destroy # (answer 'yes')
+```
+This will remove the GCP Bucket and the three tables from the BigQuery database.
 
-Register blocks types within a module or file.
-                                                                                                                                                                                   
-#### Make sure the targeted blocks is available for configuration via the UI. (If a block type has already been registered, its registration will be updated to match the block's current definition)
+#### Clean Prefect
 
->>> prefect block register -m prefect_gcp 
+If you don't intend to reuse the Prefect blocks and deployment, remove them from your Prefect Orion (either local or in cloud). Then stop the prefect orion and prefect agent with CTRL+C.
 
-#### Configue the block
+#### Remove the virtual environment
 
-- Go to PREFECT-GUI / "Blocks" / "Add Block" / "GCS Bucket"
-
-name --> de-project-user-bucket
-bucket-name --> de_project_gcp_bucket
-
-#### Click "ADD" on GCP-Credentials
-
-name --> de-project-gcs-creds
-service account info --> copy the content of the JSON file associated with the bucket account (we downloaded it earlier)
-
---> Done
---> Select the newly created  GCP credential in the select box
---> Create
-
-
-#### Edit script
-==> Add GcsBucket (as explained on the PREFECT-GUI GcSBucket block page)
-
-## --------------------------------------------------------------
-## Move the GCS files to BigQuery Data Warehouse
-
-see scripts:
-- flows/etl_gcs_to_bq.py
-
-### Let's configure a BigQuery database with the tables schemas
-
-- Go to GCP-UI / "Big Query" / "Add data" / "Google Cloud Storage"
-
---> Browse to "de-project-user-bucket/data/daily_ecomix.parquet"
---> Project : lexical-passkey-375922
---> Dataset : create a new one with "deproject_dataset" and select it
---> Table : daily_ecomix
---> Click CREATE TABLE
-
---> Browse to "de-project-user-bucket/data/daily_gaz_supply.parquet"
---> Project : lexical-passkey-375922
---> Dataset : select "deproject_dataset"
---> Table : daily_gaz_supply
---> Click CREATE TABLE
-
---> Browse to "de-project-user-bucket/data/daily_temperatures.parquet"
---> Project : lexical-passkey-375922
---> Dataset : select "deproject_dataset"
---> Table : daily_temperatures
---> Click CREATE TABLE
-
-Once created, the database will know the 3 tables schemas, and the scripts will be able to push data from GCS to BQ
-
-### Edit script
-==> Add df.to_gbd (google big query) call
-==> Use the GcpCredentials defined earlier (go to GcpCredentials block on Orion and copy code there)
+```bash
+(venv) >>> deactivate
+>>> rm -r venv
+```
