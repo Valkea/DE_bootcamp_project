@@ -4,6 +4,7 @@
 <a href="https://www.freepik.com/free-vector/generation-energy-types-power-plant-icons-vector-set-renewable-alternative-solar-tidal-wind-geotermal-biomass-wave-illustration_10601053.htm#track=ais">Image by macrovector</a> on Freepik
 
 ---
+---
 ### Table of contents
 - [Objective](#objective)
 - [Data sources](#data-sources)
@@ -17,24 +18,25 @@ This data engineering project aims to deploy and regularly update a data pipelin
 
 1. Copy data **from the data-sources to the data-lake** *(Google Cloud Storage in this case)*
 2. Copy data **from the data-lake to the data-warehouse** *(BigQuery in this case)*
-3. Transform and **produce interesting data from the staging-data**, and store them in developpement/production-data *(using DBT)*
-4. Create a **custom dashboard to display some of the information** stored in the poduction-data.
+3. Transform and **produce interesting data from the staging-data**, and store them in development/production-data *(using DBT)*
+4. Create a **custom dashboard to display some of the information** stored in the production-data.<br>
+   (My own version is avaible here: https://lookerstudio.google.com/reporting/a0869f4e-7f24-4b50-8dd0-750aac025e3b)
 
 ![ecomix](medias/data-pipeline.png)
 
 --- 
 ## Data sources
 
-In order to fullfil this project, I selected **3 datasets from the ODRÉ** (Open Data Réseaux Energies) website.
+In order to fulfil this project, I selected **3 datasets from the ODRÉ** (Open Data Réseaux Energies) website.
 
-Their dataset are particularly interesting to me, because they provide **live data** that comes diretly **from energy carriers and their partners**, and also because the dataset are **refreshed at various frequencies** ( every 1 hour / 1 day / 1 month).
+Their datasets are particularly interesting to me because they provide **live data** that comes directly **from energy carriers and their partners**, and also because the datasets are **refreshed at various frequencies** ( every 1 hour / 1 day / 1 month).
 
-Furthermore, I think we can use those datasets to answers **interesting questions** such as:
+Furthermore, I think we can use those datasets to answer **interesting questions** such as:
 1. What is the repartition of energy sources for a given day or a given period?
 2. Is the gas stock correlated in any way with the temperature?
 3. Are the energy sources influenced by the temperature?
 4. Are the energy sources influenced by the current gas stock?
-5. Does the energy sources repartition change with seasons?
+5. Does the energy sources' repartition change with the seasons?
 6. Are there more commercial exchanges related to energy when the gas stock is full at the borders?
 7. ... 
 
@@ -44,7 +46,7 @@ Furthermore, I think we can use those datasets to answers **interesting question
 
 > https://odre.opendatasoft.com/explore/dataset/eco2mix-national-tr
 
-This dataset, refreshed once an hour, presents "real time" data from the éCO2mix application. They come from the telemetry of the infrastructures and are completed with estimations.
+This dataset, refreshed once an hour, presents "real-time" data from the éCO2mix application. They come from the telemetry of the infrastructures and are completed with estimations.
 
 It contains:
 - The actual consumption.
@@ -80,7 +82,7 @@ This dataset presents the daily minimum, maximum and average temperatures (in de
 
 - **Python**: to write the various *Prefect* scripts.
 - **SQL**: to write the various *dbt* models.
-- **Makefile**: to simpify the deployment processus.
+- **Makefile**: to simplify the deployment process.
 
 ---
 ## Reproducing this project
@@ -107,7 +109,7 @@ Then, let's install PREFECT and other libs (starting at the root folder of the p
 >>> prefect version # (just to check that prefect is installed)
 ```
 
-### 3. Initialize infrastuctures with Terraform
+### 3. Initialize infrastructures with Terraform
 
 ```bash
 (venv) >>> terraform -chdir=terraform plan # (optional) 
@@ -130,7 +132,7 @@ Then, let's install PREFECT and other libs (starting at the root folder of the p
   <summary>(option 1): to use Prefect Orion in the Cloud (recommended), click here</summary>
   
   > 1. Create a [PREFECT cloud account](http://prefect.io/)
-  > 2. Login from local terminal 
+  > 2. Login from the local terminal 
   > ```bash
   > (venv) >>> prefect cloud login
   > ```
@@ -147,7 +149,7 @@ Then, let's install PREFECT and other libs (starting at the root folder of the p
 <details>
   <summary>(option 2): to use Prefect Orion locally, click here</summary>
   
-  > The make file basically execute the following lines
+  > The make file executes the following lines
   > ```bash
   > (venv) >>> prefect orion start
   > ```
@@ -169,7 +171,7 @@ Then, let's install PREFECT and other libs (starting at the root folder of the p
 <details>
   <summary>If you can't use *make* for any reason click here</summary>
   
-  > The make file basically execute the following lines
+  > The make file executes the following lines
   > ```bash
   > (venv) >>> python setup_prefect.py {CREDS_PATH} {PROJECT_ID}
   > (venv) >>> prefect deployment build flows/etl_main.py:etl_main_flow --name etl_eco2mix --cron "0 * * * *" -a
@@ -190,7 +192,7 @@ Then, let's install PREFECT and other libs (starting at the root folder of the p
 
 ### 6. Start Prefect Agent
 
-Whether we use Prefect Orion in the Cloud or Locally, we need to initialize a *Prefect agent* in order to execute the selected queue
+Whether we use Prefect Orion in the Cloud or Locally, we need to initialize a *Prefect agent* to execute the selected queue
 
 ```bash
 (venv) >>> prefect deployment run etl-main-flow/etl_eco2mix # (to avoid waiting for the cronjob time)
@@ -202,7 +204,78 @@ Whether we use Prefect Orion in the Cloud or Locally, we need to initialize a *P
 
 ### 7. Setup DBT
 
-TODO
+The only solution I found to easily set up the DBT project, is to use the Prefect DBT connector, which relies on the DBT API.
+Unfortunately, the DBT API is not available on the free account, so we will need to make it manually (it's not too long).
+
+<details>
+  <summary> 1. To setup, the DBT Cloud, click here</summary>
+    
+  <br>In order to reproduce this step-by-step configuration, you will need to clone this repository on your own GitHub account, because at some point the DBT configuration process will ask you to grant access to the repository.
+  
+  > 1. Create a new account
+  > 2. *Choose your connection* ---> select **BigQuery**
+  > ![ecomix](medias/dbt_setup_step02.jpg)
+  >
+  > 3. *Configure your environment* ---> upload the **GCP JSON file** and it will fill all the required fields
+  > ![ecomix](medias/dbt_setup_step03.jpg)
+  >
+  > 4. *Development Credentials* ---> set **de_project_development** as database name
+  > ![ecomix](medias/dbt_setup_step04.jpg)
+  >
+  > 5. *Setup a Repository* ---> use **Git Clone** along with the Git URL of YOUR repository
+  > ![ecomix](medias/dbt_setup_step05.jpg)
+  >
+  > 6. **Copy your DBT public key**
+  > ![ecomix](medias/dbt_setup_step06.jpg)
+  >
+  > 7. Go to YOUR clone repository / Settings / Deploy Keys and **add the DBT public key**<br>
+  > (if you don't intend to alter the DBT models, schemas etc, you don't need the *write* right)
+  > ![ecomix](medias/dbt_setup_step07.jpg)
+  >
+  > 8. Confirm on the DBT installation page, and your project is ready!
+  > ![ecomix](medias/dbt_setup_step08.jpg)
+</details>
+
+<details>
+  <summary> 2. To configure the Production environment, click here</summary>
+    
+  <br>Considering the DBT project configuration we just made, the DBT commands (such as `dbt build` or `dbt run`) will send the new tables to the **de_project_development** (that is the Development Environment). But it would be cleaner to send the results of the commands triggered by the Cloud cronjob to a **de_project_production** table... So let's create a new environment for this.
+  
+  > 1. Go to *Deploy / Environments* and click **Create Environment**
+  > ![ecomix](medias/dbt_setup_step10.jpg)
+  >
+  > 2. *General settings* ---> set name to **Production** *(or whatever you want)*
+  > ![ecomix](medias/dbt_setup_step11.jpg)
+  >
+  > 3. Click **Save** and that's done
+</details>
+
+<details>
+  <summary> 3. To configure the deployment, click here</summary>
+    
+  <br>Finally, as we want to automatize the project so it regularly updates the data in the **de_project_production** table, we will set up a new Job with a cronjob.
+
+  > 1. Go to **Deploy / Jobs** and click **Create Job**
+  > ![ecomix](medias/dbt_setup_step20.jpg)
+  >
+  > 2. *General settings* ---> set Job name to whatever you want.
+  > ![ecomix](medias/dbt_setup_step21.jpg)
+  >
+  > 3. *Execution settings* ---> set **commands** to `dbt build --var 'is_test_run: false'`
+  > ![ecomix](medias/dbt_setup_step22.jpg)
+  >
+  > 4. *Triggers* ---> click on **Run on schedule** and set it to run every hour (because the source update every hour, but we could set it to run once a day...)
+  > ![ecomix](medias/dbt_setup_step23.jpg)
+</details>
+
+<br>Once configured, the **DBT Cloud** will automatically send the transformed data to the **de_project_production** database of the BigQuery data-warehouse *(at the given cronjob interval)*.
+
+However, to avoid waiting for the cronjob trigger one can also manually activate the DBT project:
+- one can send the transformed data to the **de_project_development** database by using `dbt build --var 'is_test_run: false'` in the DBT console.
+- one can send the transformed data to the **de_project_production** database by clicking **Run now** on the Job page *(Deploy / Jobs / YourJob)*
+
+Execute the latter to avoid waiting for the next cronjob trigger.
+
 
 > At this point, the BigQuery **de_project_production** table should be filled with a *partitioned* **daily_merged** table.
 >
@@ -210,9 +283,9 @@ TODO
 
 ### 8. Setup Looker
 
-Using the *BigQuery / daily_merged / Export / Explore with Looker studio*, one can finally build a new dashboard.
+Using the *BigQuery /* **daily_merged** */ Export / Explore with Looker studio* one can finally build a new dashboard.
 
-> Here is the dashbord I created for this project
+> Here is the dashboard I created for this project
 >
 > ![ecomix](medias/looker.jpg)
 >
@@ -220,25 +293,26 @@ Using the *BigQuery / daily_merged / Export / Explore with Looker studio*, one c
 
 ### 9. Clean up
 
-Once done, don't forget to remove the allocated infrastructures, clean the ressources etc...
+Once done, don't forget to remove the allocated infrastructure, clean the resources etc...
 
-#### Destroy infrastuctures with Terraform
+**Destroy infrastructures with Terraform**
 
 ```bash
 (venv) >>> terraform -chdir=terraform destroy # (answer 'yes')
 ```
 This will remove the GCP Bucket and the three tables from the BigQuery database.
 
-#### Clean Prefect
+**Clean Prefect**
 
-If you don't intend to reuse the Prefect blocks and deployment, remove them from your Prefect Orion (either local or in cloud). 
-Then logout from the cloud is using the Cloud:
-```bash
-(venv) >>> prefect cloud logout
-```
-And finally stop the *Prefect agent* with CTRL+C
+If you don't intend to reuse the Prefect blocks and deployment:
+- remove them from your Prefect Orion (either local or in the cloud) 
+- then stop the *Prefect agent* with CTRL+C
+- And finally logout from the *Prefect Cloud*
+  ```bash
+  (venv) >>> prefect cloud logout
+  ```
 
-#### Remove the virtual environment
+**Remove the virtual environment**
 
 ```bash
 (venv) >>> deactivate
