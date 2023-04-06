@@ -89,25 +89,66 @@ This dataset presents the daily minimum, maximum and average temperatures (in de
 
 ### 1. Setup GCP
 
-TODO
+As we will deploy using the Google Cloud Plateform infrastructures, we need to setup a service access to allow the various access for Terraform, Prefect and DBT.
+
+<details>
+  <summary>1. To configure the GCP service account, click here</summary>
+    
+  > 1. Create a GCP **New Project**
+  > ![ecomix](medias/gcp_setup_step01.png)
+  >
+  > 2. **Switch** to the project
+  > 3. Go to *IAM & Admin / Service Account /* **Create service account**
+  > 4. *Service account details* ---> set *Service account name* to whatever you want
+  >
+  > ![ecomix](medias/gcp_setup_step03.png)
+  >
+  > 5. In *Grant this service account access to project* ---> add the following roles:
+  >    - Add **Basic / Viewer** *(optional)*
+  >    - Add **Cloud Storage / Storage Admin**
+  >    - Add **Cloud Storage / Storage Object Admin**
+  >    - Add **BigQuery Admin**
+  >
+  > ![ecomix](medias/gcp_setup_step04.png)
+  >
+  > 6. Click "DONE"
+
+</details>
+
+<details>
+  <summary>2. To get the GCP credential JSON file, click here</summary>
+    
+  > 1. Go to your **service account page** --> click on **Actions / ... / Manage keys**
+  > ![ecomix](medias/gcp_setup_step05.png)
+  >
+  > 2. Click *Add key / Create new key* then select **JSON** and download the file.
+  > ![ecomix](medias/gcp_setup_step06.png)
+  >
+  > 3. Put it in the **creds** folder in the project *(or wherever you want)*.
+
+</details>
+
+<br>Once we have the GCP credential JSON file for a properly configured service account, we can go ahead.
 
 ### 2. Setup local environment
 
-Let's duplicate the project github repository
+Let's **duplicate the project** github repository
 
 ```bash
 >>> git clone https://github.com/Valkea/DE_bootcamp_project.git
 >>> cd DE_bootcamp_project
 ```
 
-Then, let's install PREFECT and other libs (starting at the root folder of the project)
+Then, let's **install PREFECT and other libs** (starting at the root folder of the project)
 
 ```bash
 >>> python -m venv venv
 >>> source venv/bin/activate
->>> pip install -r requirements.txt
->>> prefect version # (just to check that prefect is installed)
+(venv) >>> pip install -r requirements.txt
+(venv) >>> prefect version # (just to check that prefect is installed)
 ```
+
+Finally, let's [install Terraform](https://developer.hashicorp.com/terraform/downloads?product_intent=terraform) and [the Google Cloud CLI](https://cloud.google.com/sdk/docs/install)
 
 ### 3. Initialize infrastructures with Terraform
 
@@ -208,7 +249,7 @@ The only solution I found to easily set up the DBT project, is to use the Prefec
 Unfortunately, the DBT API is not available on the free account, so we will need to make it manually (it's not too long).
 
 <details>
-  <summary> 1. To setup, the DBT Cloud, click here</summary>
+  <summary> 1. To configure the DBT Cloud, click here</summary>
     
   <br>In order to reproduce this step-by-step configuration, you will need to clone this repository on your own GitHub account, because at some point the DBT configuration process will ask you to grant access to the repository.
   
