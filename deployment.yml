@@ -1,6 +1,0 @@
-jobs:
-  - name: hourly_transformation
-    schedule: '0 * * * *'  # The example will run every hours
-    steps:
-      - name: run models
-        command: dbt build --var 'is_test_run: false'
