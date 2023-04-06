@@ -10,6 +10,17 @@
 - [Data sources](#data-sources)
 - [Tools](#tools)
 - [Reproducing this project](#reproducing-this-project)
+    1. [Setup GCP](#1-setup-gcp)
+    2. [Setup local environment](#2-setup-local-environment)
+    3. [Initialize infrastructures with Terraform](#3-initialize-infrastructures-with-terraform)
+    4. [Initialize Prefect Orion in Cloud or Locally](#4-initialize-prefect-orion-in-cloud-or-locally)
+    5. [Initialize Prefect blocks & deployment](#5-initialize-prefect-blocks--deployment)
+    6. [Start Prefect Agent](#6-start-prefect-agent)
+    7. [Setup DBT](#7-setup-dbt)
+    8. [Setup Looker](#8-setup-looker)
+    9. [Clean up](#9-clean-up)
+
+*(This table is accessible at all time from the top left menu accordion, next to README.md)*
 
 ---
 ## Objective
@@ -86,6 +97,8 @@ This dataset presents the daily minimum, maximum and average temperatures (in de
 
 ---
 ## Reproducing this project
+
+> Steps 2, 3, 4, 5, 6 can be used on a **virtual machine** (e.g. GCP VM) if the project needs to fully run remotly.
 
 ### 1. Setup GCP
 
@@ -201,7 +214,7 @@ Finally, let's [install Terraform](https://developer.hashicorp.com/terraform/dow
 </details>
 
 
-### 5. Initialize Prefect Workflow
+### 5. Initialize Prefect blocks & deployment
 
 **Edit the MakeFile** with your *project_id* and the *path to your GCP credential json file*, and initialize using the folloing command
 
