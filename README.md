@@ -300,9 +300,10 @@ Unfortunately, the DBT API is not available on the free account, so we will need
   > ![ecomix](medias/dbt_setup_step10.jpg)
   >
   > 2. *General settings* ---> set name to **Production** *(or whatever you want)*
+  > 3. *Deployment Credentials* ---> set **de_project_production** as database name 
   > ![ecomix](medias/dbt_setup_step11.jpg)
   >
-  > 3. Click **Save** and that's done
+  > 4. Click **Save** and that's done
 </details>
 
 <details>
