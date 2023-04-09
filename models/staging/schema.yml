@@ -2,7 +2,7 @@ version: 2
 
 sources:
   - name: staging
-    database: compelling-moon-382321
+    database: eco2mix
     schema: de_project_staging
 
     tables:

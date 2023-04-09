@@ -1,6 +1,6 @@
 
-PROJECT_ID = "compelling-moon-382321"
-CREDS_PATH = "creds/compelling-moon-382321-1a9730cde10d.json"
+PROJECT_ID = "eco2mix"
+CREDS_PATH = "creds/eco2mix-82e48d9f5c6c.json"
 
 setup_prefect_blocks:
 	@echo "Initialiaze prefect blocks"
