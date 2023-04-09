@@ -322,7 +322,9 @@ Unfortunately, the DBT API is not available on the free account, so we will need
   >
   > 4. *Triggers* ---> click on **Run on schedule** and set it to run every hour (because the source update every hour, but we could set it to run once a day...)
   > ![ecomix](medias/dbt_setup_step23.jpg)
-</details>
+</details> 
+
+*(Edit the database name in models/staging/schema.json if you changed it earlier, and push to your repo)*
 
 <br>Once configured, the **DBT Cloud** will automatically send the transformed data to the **de_project_production** database of the BigQuery data-warehouse *(at the given cronjob interval)*.
 
