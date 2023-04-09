@@ -166,6 +166,7 @@ Finally, let's [install Terraform](https://developer.hashicorp.com/terraform/dow
 ### 3. Initialize infrastructures with Terraform
 
 ```bash
+(venv) >>> terraform -chdir=terraform init
 (venv) >>> terraform -chdir=terraform plan # (optional) 
 (venv) >>> terraform -chdir=terraform apply # (answer 'yes')
 ```
